@@ -8,10 +8,10 @@ async function testSiigo() {
       access_key: 'OWE1OGNKY2QtZGY4ZC00Nzg1LThIZGYtNmExMzUzMmE4Yzc1OjR1NyluZlIOE4='
     })
 
-    console.log('✅ Autenticación exitosa!')
+    console.log('Autenticación exitosa!')
     console.log('Token recibido:', response.data.access_token)
   } catch (error) {
-    console.error('❌ Error en autenticación:')
+    console.error('Error en autenticación:')
     console.error(error.response?.data || error.message)
   }
 }

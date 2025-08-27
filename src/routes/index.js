@@ -5,6 +5,7 @@ import businessController from '../controllers/businessController.js'
 import auth from '../middlewares/auth.js'
 import admin from '../middlewares/admin.js'
 import adminController from '../controllers/adminController.js'
+import { syncSiigo, listInvoices } from '../controllers/siigoController.js'
 
 const router = express.Router()
 
@@ -31,4 +32,10 @@ router.get('/external/posts', jsonPlaceholderController.getPosts)
 router.get('/admin/users', auth, admin, adminController.getAllUsers)
 router.get('/admin/businesses', auth, admin, adminController.getAllBusinesses)
 
+//auth siigo sandbox
+router.get('/sync/siigo', syncSiigo)
+// Sincronizar con Siigo y guardar en Mongo
+// router.get('/sync/siigo', getInvoices)
+// Listar facturas desde Mongo
+router.get('/invoices', listInvoices)
 export default router
