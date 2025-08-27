@@ -1,10 +1,12 @@
 import Invoice from '../models/Invoice.js'
-import { getInvoices } from '../services/siigoService.js'
+import { getSiigoToken } from '../services/siigoAuthService.js'
+// import { getInvoices } from '../services/siigoService.js'
 
 export async function syncSiigo(req, res) {
   try {
     console.log('yeeeeahhhh')
-
+    await getSiigoToken()
+    res.json({ message: 'Token obtenido, revisar consola' })
     // const token = 'access token' // 👈 luego lo manejamos dinámico
     // const invoicesFromApi = await getInvoices(token)
 
@@ -31,11 +33,11 @@ export async function syncSiigo(req, res) {
     //   savedInvoices.push(saved)
     // }
 
-    res.json({
-      message: '✅ Facturas sincronizadas correctamente'
-      // synced: savedInvoices.length,
-      // invoices: savedInvoices
-    })
+    // res.json({
+    //   message: '✅ Facturas sincronizadas correctamente'
+    // synced: savedInvoices.length,
+    // invoices: savedInvoices
+    // })
   } catch (error) {
     console.error('❌ Error en syncInvoices:', error.message)
     res.status(500).json({ error: 'Error al sincronizar facturas' })

@@ -1,7 +1,7 @@
 // src/services/siigoAuthService.js
 import axios from 'axios'
 
-const SIIGO_AUTH_URL = 'https://api.siigo.com/auth' // endpoint sandbox
+const SIIGO_AUTH_URL = 'https://private-anon-9e989f2776-siigoapi.apiary-mock.com/auth' // endpoint sandbox
 
 export async function getSiigoToken() {
   try {
