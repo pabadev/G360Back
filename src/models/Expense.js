@@ -1,14 +1,14 @@
 import mongoose from 'mongoose'
 
-const invoiceSchema = new mongoose.Schema(
+const expenseSchema = new mongoose.Schema(
   {
     business: { type: mongoose.Schema.Types.ObjectId, ref: 'Business', required: true },
-    externalId: { type: String, required: true }, // ID en la API externa
+    externalId: { type: String, required: true },
+
     number: { type: String },
     date: { type: Date, required: true },
-    dueDate: { type: Date },
 
-    client: {
+    supplier: {
       externalId: String,
       name: String,
       identification: String,
@@ -32,16 +32,16 @@ const invoiceSchema = new mongoose.Schema(
     discounts: Number,
     total: Number,
     currency: { type: String, default: 'COP' },
-    status: { type: String }, // paid, pending, cancelled
+    category: String, // clasificar gastos
+    paymentStatus: { type: String }, // pagado, pendiente, etc.
 
-    source: { type: String, required: true }, // Alegra, Siigo...
-    rawData: { type: Object } // respuesta original para auditoría
+    source: { type: String, required: true },
+    rawData: { type: Object }
   },
   { timestamps: true }
 )
 
-// Índice compuesto para evitar duplicados por negocio + API
-invoiceSchema.index({ externalId: 1, source: 1, business: 1 }, { unique: true })
+expenseSchema.index({ externalId: 1, source: 1, business: 1 }, { unique: true })
 
 // ✅ Patrón seguro
-export default mongoose.models.Invoice || mongoose.model('Invoice', invoiceSchema)
+export default mongoose.models.Expense || mongoose.model('Expense', expenseSchema)

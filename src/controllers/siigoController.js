@@ -1,6 +1,5 @@
 import Invoice from '../models/Invoice.js'
 import { getSiigoToken } from '../services/siigoAuthService.js'
-// import { getInvoices } from '../services/siigoService.js'
 
 export async function syncSiigo(req, res) {
   try {

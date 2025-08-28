@@ -1,12 +1,28 @@
 import mongoose from 'mongoose'
 
-const { Schema, model } = mongoose
+const { Schema } = mongoose
 
 const businessSchema = new Schema(
   {
     name: { type: String, required: true },
     description: { type: String },
-    owner: { type: Schema.Types.ObjectId, ref: 'User', required: true }
+
+    // Relación con el dueño (usuario que creó el negocio)
+    owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+
+    // Conexiones a APIs externas (Alegra, Siigo, etc.)
+    sourceConnections: [
+      {
+        source: { type: String, enum: ['Alegra', 'Siigo'], required: true },
+        credentials: {
+          accessToken: String,
+          refreshToken: String,
+          expiresAt: Date
+        },
+        isActive: { type: Boolean, default: true },
+        lastSync: Date
+      }
+    ]
   },
   {
     timestamps: true,
@@ -22,6 +38,5 @@ const businessSchema = new Schema(
   }
 )
 
-const Business = model('Business', businessSchema)
-
-export default Business
+// ✅ Patrón seguro
+export default mongoose.models.Business || mongoose.model('Business', businessSchema)

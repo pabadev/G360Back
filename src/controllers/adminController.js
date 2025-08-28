@@ -1,5 +1,5 @@
-import User from '../models/user.js'
-import Business from '../models/business.js'
+import User from '../models/User.js'
+import Business from '../models/Business.js'
 
 export const getAllUsers = async (req, res, next) => {
   try {
