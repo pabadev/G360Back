@@ -1,5 +1,5 @@
-import User from '../models/user.js'
-import Business from '../models/business.js'
+import User from '../models/User.js'
+import Business from '../models/Business.js'
 import jwt from 'jsonwebtoken'
 
 const generateToken = (id) => {
