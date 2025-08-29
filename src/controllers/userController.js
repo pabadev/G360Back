@@ -42,7 +42,7 @@ export const loginUser = async (req, res, next) => {
     if (user.role === 'admin') {
       const users = await User.find().select('-password')
       const payload = users.map((u) => (typeof u.toJSON === 'function' ? u.toJSON() : u))
-      return res.json({ success: true, user: user.toJSON(), token, users })
+      return res.json({ success: true, user: user.toJSON(), token, users: payload })
     }
 
     // Si es user, devolver sus negocios
