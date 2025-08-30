@@ -1,45 +1,61 @@
-// src/services/auth/strategies/alegraStrategy.js
+import logger from '../../../utils/logger.js'
 
 /**
  * Estrategia Alegra:
- * - Normalmente usa Basic Auth con "email:token" (API Key del usuario en Alegra).
- * - Aquí NO llamamos a un endpoint de "login" porque la API Key ya es la credencial.
- * - Validación opcional: podrías hacer un ping a un endpoint lightweight para comprobarla.
+ * - Usa Basic Auth con la forma "email:apiKey" (token generado en Alegra).
+ * - No requiere un endpoint de login, la API Key funciona como credencial permanente.
+ * - Opcionalmente se puede validar haciendo un ping a un endpoint de Alegra.
  */
 const alegraStrategy = {
   id: 'Alegra',
 
   /**
-   * params esperados:
-   * - email: string
-   * - apiKey: string  (token generado en Alegra)
+   * Autenticación básica para Alegra.
+   * @param {Object} params
+   * @param {string} params.email - Correo del usuario en Alegra.
+   * @param {string} params.apiKey - Token generado en Alegra.
+   * @returns {Object} credentials + meta info
    */
   async authenticate(params = {}) {
     const { email, apiKey } = params
     if (!email || !apiKey) {
+      logger.warn('[AlegraStrategy] Credenciales faltantes en authenticate')
       throw new Error('Alegra auth requires { email, apiKey }')
     }
 
-    // En Alegra la "credencial" es estática (no expira como OAuth),
-    // así que simplemente la guardamos.
+    // Credenciales estáticas (no expiran como OAuth).
     const credentials = { email, apiKey }
 
-    // meta opcional por si quieres devolver algo al frontend.
+    // Información adicional para el frontend o debugging.
     const meta = { provider: 'Alegra', type: 'Basic', validated: false }
 
-    // Si quisieras validarla aquí, podrías intentar un fetch a un endpoint:
-    // try { await fetch(...); meta.validated = true } catch { throw new Error('Invalid Alegra credentials') }
+    // Si quieres validar de inmediato:
+    // try { await fetch(...); meta.validated = true } catch (err) {
+    //   logger.error('[AlegraStrategy] Credenciales inválidas', { error: err.message })
+    //   throw new Error('Invalid Alegra credentials')
+    // }
 
+    logger.info('[AlegraStrategy] Autenticación configurada correctamente', { email })
     return { credentials, meta }
   },
 
   /**
-   * Construye headers para consumir la API de Alegra.
-   * La mayoría de los endpoints aceptan Basic con base64(email:token).
+   * Construye los headers necesarios para consumir la API de Alegra.
+   * La mayoría de endpoints aceptan Basic Auth con base64(email:apiKey).
+   * @param {Object} credentials
+   * @param {string} credentials.email
+   * @param {string} credentials.apiKey
+   * @returns {Object} Headers HTTP
    */
   buildAuthHeaders(credentials = {}) {
     const { email, apiKey } = credentials
+    if (!email || !apiKey) {
+      logger.error('[AlegraStrategy] No se pudieron construir headers: credenciales faltantes')
+      throw new Error('Missing Alegra credentials for headers')
+    }
+
     const basic = Buffer.from(`${email}:${apiKey}`).toString('base64')
+    logger.debug('[AlegraStrategy] Headers construidos correctamente', { email })
     return {
       Authorization: `Basic ${basic}`,
       'Content-Type': 'application/json',

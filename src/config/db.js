@@ -1,3 +1,4 @@
+import logger from '../utils/logger.js'
 import mongoose from 'mongoose'
 
 const connectDB = async () => {
@@ -9,7 +10,7 @@ const connectDB = async () => {
     })
     // success logging handled by the caller (server.js)
   } catch (error) {
-    console.error('MongoDB connection failed:', error.message)
+    logger.error('MongoDB connection failed: %s', error.message)
     throw error
   }
 }

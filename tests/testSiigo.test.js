@@ -3,7 +3,7 @@ import axios from 'axios'
 async function testSiigo() {
   try {
     // Hacemos login con las credenciales de prueba
-    const response = await axios.post('https://api.siigo.com/auth', {
+    const response = await axios.post('https://private-anon-9e989f2776-siigoapi.apiary-mock.com/auth', {
       username: 'siigoasi@pruebas.com',
       access_key: 'OWE1OGNKY2QtZGY4ZC00Nzg1LThIZGYtNmExMzUzMmE4Yzc1OjR1NyluZlIOE4='
     })

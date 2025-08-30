@@ -1,6 +1,9 @@
 import Business from '../models/Business.js'
+import logger from '../utils/logger.js'
 
-// Crear un negocio
+/**
+ * Crear un negocio asociado al usuario autenticado.
+ */
 export const createBusiness = async (req, res, next) => {
   try {
     const { name, description } = req.body || {}
@@ -22,38 +25,61 @@ export const createBusiness = async (req, res, next) => {
     })
 
     const businessWithOwner = await Business.findById(business._id).populate('owner', 'name email')
+
+    logger.info(`Negocio creado con ID ${business._id} por usuario ${ownerId}`)
+
     return res.status(201).json({ success: true, business: businessWithOwner.toJSON() })
   } catch (err) {
+    logger.error(`Error al crear negocio: ${err.message}`)
     return next(err)
   }
 }
 
-// Listar negocios de un usuario
+/**
+ * Listar negocios pertenecientes al usuario autenticado.
+ */
 export const getUserBusinesses = async (req, res, next) => {
   try {
     const ownerId = req.user && (req.user.id || req.user._id)
     if (!ownerId) return res.status(401).json({ success: false, message: 'Unauthorized' })
 
     const businesses = await Business.find({ owner: ownerId }).populate('owner', 'name email')
-    return res.json({ success: true, count: businesses.length, businesses })
+
+    logger.info(`Usuario ${ownerId} consultó sus ${businesses.length} negocios`)
+
+    return res.json({
+      success: true,
+      count: businesses.length,
+      businesses
+    })
   } catch (err) {
+    logger.error(`Error al obtener negocios de usuario: ${err.message}`)
     return next(err)
   }
 }
 
-// Obtener un negocio por ID
+/**
+ * Obtener un negocio por su ID.
+ */
 export const getBusinessById = async (req, res, next) => {
   try {
     const { id } = req.params
     const business = await Business.findById(id).populate('owner', 'name email')
     if (!business) return res.status(404).json({ success: false, message: 'Business not found' })
+
+    logger.info(`Negocio consultado con ID ${id}`)
+
     return res.json({ success: true, business })
   } catch (err) {
+    logger.error(`Error al obtener negocio por ID: ${err.message}`)
     return next(err)
   }
 }
 
-// Actualizar un negocio (solo dueño)
+/**
+ * Actualizar un negocio existente.
+ * Solo el dueño puede realizar esta acción.
+ */
 export const updateBusiness = async (req, res, next) => {
   try {
     const { id } = req.params
@@ -70,13 +96,20 @@ export const updateBusiness = async (req, res, next) => {
     await business.save()
 
     const updated = await Business.findById(business._id).populate('owner', 'name email')
+
+    logger.info(`Negocio ${id} actualizado por usuario ${ownerId}`)
+
     return res.json({ success: true, business: updated })
   } catch (err) {
+    logger.error(`Error al actualizar negocio: ${err.message}`)
     return next(err)
   }
 }
 
-// Eliminar un negocio
+/**
+ * Eliminar un negocio.
+ * Solo el dueño puede eliminarlo.
+ */
 export const deleteBusiness = async (req, res, next) => {
   try {
     const { id } = req.params
@@ -89,13 +122,23 @@ export const deleteBusiness = async (req, res, next) => {
     }
 
     const deleted = await Business.findByIdAndDelete(id).populate('owner', 'name email')
-    return res.json({ success: true, business: deleted, message: 'Business deleted' })
+
+    logger.info(`Negocio ${id} eliminado por usuario ${ownerId}`)
+
+    return res.json({
+      success: true,
+      business: deleted,
+      message: 'Business deleted'
+    })
   } catch (err) {
+    logger.error(`Error al eliminar negocio: ${err.message}`)
     return next(err)
   }
 }
 
-// Agregar o actualizar conexión a API (ej. Alegra o Siigo)
+/**
+ * Agregar o actualizar una conexión a una API externa (ej. Alegra o Siigo).
+ */
 export const addOrUpdateConnection = async (req, res, next) => {
   try {
     const { id } = req.params
@@ -108,19 +151,23 @@ export const addOrUpdateConnection = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Forbidden' })
     }
 
-    // Busca si ya existe conexión para esa fuente
+    // Verificar si ya existe conexión para esa fuente
     const existing = business.sourceConnections.find((c) => c.source === source)
     if (existing) {
       existing.credentials = credentials
       existing.isActive = true
       existing.lastSync = null
+      logger.info(`Conexión actualizada para fuente ${source} en negocio ${id}`)
     } else {
       business.sourceConnections.push({ source, credentials })
+      logger.info(`Conexión agregada para fuente ${source} en negocio ${id}`)
     }
 
     await business.save()
+
     return res.json({ success: true, business })
   } catch (err) {
+    logger.error(`Error al agregar/actualizar conexión: ${err.message}`)
     return next(err)
   }
 }
