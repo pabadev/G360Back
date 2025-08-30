@@ -63,6 +63,9 @@ export async function syncInvoices(req, res, next) {
       case 'alegra':
         result = await alegraService.syncAlegraInvoices({ businessId, query })
         break
+      case 'siigo':
+        result = await siigoService.syncSiigoInvoices({ businessId, query })
+        break
       // case 'siigo':  (cuando se implemente)
       //   result = await siigoService.syncSiigoInvoices({ businessId, query })
       //   break
